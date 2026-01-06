@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subtraction Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .game-container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+      min-width: 350px;
+    }
+    .score {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .circles-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      min-height: 80px;
+    }
+    .circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 4px 10px rgba(240, 147, 251, 0.4);
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .circle:hover {
+      transform: scale(1.1);
+    }
+    .circle.crossed {
+      opacity: 0.3;
+    }
+    .circle.crossed::before,
+    .circle.crossed::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+    }
+    .circle.crossed::before {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    .circle.crossed::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+    .equation {
+      font-size: 48px;
+      font-weight: bold;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+    .answer-input {
+      width: 80px;
+      height: 60px;
+      font-size: 36px;
+      text-align: center;
+      border: 3px solid #ddd;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .answer-input::-webkit-outer-spin-button,
+    .answer-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .answer-input:focus {
+      border-color: #667eea;
+    }
+    .answer-input.correct {
+      border-color: #4ade80;
+      background-color: #dcfce7;
+    }
+    .answer-input.incorrect {
+      border-color: #f87171;
+      background-color: #fee2e2;
+    }
+    .feedback {
+      margin-top: 20px;
+      font-size: 24px;
+      min-height: 36px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="circles-container" id="circles"></div>
+    <div class="equation">
+      <span id="n">0</span>
+      <span>-</span>
+      <span id="y">0</span>
+      <span>=</span>
+      <input type="number" class="answer-input" id="answer" min="0" max="10" autofocus>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <script>
+    let score = 0;
+    let currentN = 0;
+    let currentY = 0;
+
+    const circlesEl = document.getElementById('circles');
+    const nEl = document.getElementById('n');
+    const yEl = document.getElementById('y');
+    const answerEl = document.getElementById('answer');
+    const scoreEl = document.getElementById('score');
+    const feedbackEl = document.getElementById('feedback');
+
+    function generateProblem() {
+      currentN = Math.floor(Math.random() * 10) + 1;
+      currentY = Math.floor(Math.random() * (currentN + 1));
+
+      circlesEl.innerHTML = '';
+      for (let i = 0; i < currentN; i++) {
+        const circle = document.createElement('div');
+        circle.className = 'circle';
+        circle.addEventListener('click', function() {
+          this.classList.toggle('crossed');
+        });
+        circlesEl.appendChild(circle);
+      }
+
+      nEl.textContent = currentN;
+      yEl.textContent = currentY;
+      answerEl.value = '';
+      answerEl.className = 'answer-input';
+      feedbackEl.textContent = '';
+      answerEl.focus();
+    }
+
+    answerEl.addEventListener('input', function() {
+      const userAnswer = parseInt(answerEl.value, 10);
+      const correctAnswer = currentN - currentY;
+
+      if (answerEl.value === '') {
+        answerEl.className = 'answer-input';
+        feedbackEl.textContent = '';
+        return;
+      }
+
+      if (userAnswer === correctAnswer) {
+        answerEl.className = 'answer-input correct';
+        feedbackEl.textContent = 'Correct!';
+        feedbackEl.style.color = '#4ade80';
+        score++;
+        scoreEl.textContent = score;
+        setTimeout(generateProblem, 800);
+      } else if (answerEl.value.length >= String(correctAnswer).length) {
+        answerEl.className = 'answer-input incorrect';
+        feedbackEl.textContent = 'Try again!';
+        feedbackEl.style.color = '#f87171';
+      }
+    });
+
+    generateProblem();
+  </script>
+</body>
+</html>
